@@ -6,8 +6,10 @@ import net.masterthought.cucumber.json.support.Status;
 import net.masterthought.cucumber.json.support.StatusCounter;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.WordUtils;
 
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Element {
 
@@ -71,7 +73,7 @@ public class Element {
     }
 
     public String getEscapedName() {
-        return StringUtils.defaultString(StringEscapeUtils.escapeHtml(name));
+        return StringUtils.defaultString(StringEscapeUtils.escapeHtml(getNameForScenarioOutlineStep(name, id)));
     }
 
     public String getKeyword() {
@@ -189,5 +191,27 @@ public class Element {
         for (Hook hook : hooks) {
             statusCounter.incrementFor(hook.getResult().getStatus());
         }
+    }
+
+    private String getNameForScenarioOutlineStep(String name, String id) {
+        String[] tokens = id.split(";");
+        // Feature name, scenario name, name of example, example index
+        if (tokens.length > 2 && !tokens[2].equals("")) {
+            String exampleName = tokens[2];
+            // We're within a scenario outline, and have a named example. Append that to the title of the scenario
+            // Comes in form word-word-word, clean up to look more readable
+            String[] exampleTokens = exampleName.split("-");
+
+            for (int i = 0; i < exampleTokens.length; i++) {
+                exampleTokens[i] = WordUtils.capitalize(exampleTokens[i]);
+            }
+
+            String cleanedName = Arrays.asList(exampleTokens).stream()
+                    .collect(Collectors.joining(" "));
+            return name + " - " + cleanedName;
+        } else {
+            return name;
+        }
+
     }
 }
