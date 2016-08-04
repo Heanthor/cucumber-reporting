@@ -206,8 +206,7 @@ public class Element {
                 exampleTokens[i] = WordUtils.capitalize(exampleTokens[i]);
             }
 
-            String cleanedName = Arrays.asList(exampleTokens).stream()
-                    .collect(Collectors.joining(" "));
+            String cleanedName = StringUtils.join(exampleTokens, " ");
             return name + " - " + cleanedName;
         } else {
             return name;
